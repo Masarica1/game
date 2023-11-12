@@ -3,34 +3,44 @@ import csv
 
 # window setting
 window_w = 1280
-window_h = 960
+window_h = 900
 window = pygame.display.set_mode((1280, 960))
 
-table = []
-with open('setting/gene.csv', 'r', newline='') as file:
-    reader = csv.reader(file)
 
-    for row in reader:
-        table.append(row)
-    pass
+def set_table():
+    _table = []
+    with open('setting/gene.csv', 'r', newline='') as file:
+        reader = csv.reader(file)
+
+        for row in reader:
+            _table.append(row)
+
+    return _table
+
+
+# table setting
+table = set_table()
 
 # clock setting
 clock = pygame.time.Clock()
 event_1 = pygame.USEREVENT + 1
-pygame.time.set_timer(event_1, 1000)
+pygame.time.set_timer(event_1, 5)
 
 
 class Player(pygame.sprite.Sprite):
     serial: int = 0
-    record: list[int] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    record: list[int] = [0 * i for i in range(500)]
 
     def __init__(self):
         super().__init__()
-        self.image = pygame.Surface((75, 75))
+        self.image = pygame.Surface((100, 100))
         self.rect = self.image.get_rect()
         self.vel = 10
         self.last_time = 0
         self.gene = []
+        self.surface = pygame.image.load('image/player.png')
+
+        self.image.fill((128, 128, 128))
 
         # gene put
         self.serial_n: int = Player.serial
@@ -39,8 +49,6 @@ class Player(pygame.sprite.Sprite):
 
         self.rect.bottom = window_h
         self.rect.centerx = window_w / 2
-
-        self.image.fill((128, 128, 128))
 
     def update(self):
         if self.gene.pop() == '1':
@@ -52,6 +60,7 @@ class Player(pygame.sprite.Sprite):
             Player.record[self.serial_n] = self.last_time
             # noinspection PyTypeChecker
             Entity.player_group.remove(self)
+            print('Fail')
 
     def out_check(self):
         if (self.rect.x < 0) or (self.rect.right > window_w):
@@ -74,6 +83,7 @@ class Enemy(pygame.sprite.Sprite):
         self.image = pygame.Surface((75, 75))
         self.rect = self.image.get_rect()
         self.vel = vel
+        self.surface = pygame.image.load('image/enemy.jpg')
 
         self.image.fill((255, 0, 0))
         self.rect.y = 0
@@ -90,7 +100,7 @@ class Enemy(pygame.sprite.Sprite):
 
 class Entity:
     player_group = pygame.sprite.Group()
-    for _ in range(10):
+    for _ in range(500):
         # noinspection PyTypeChecker
         player_group.add(Player())
 
@@ -100,33 +110,35 @@ class Entity:
         enemy_group.add(Enemy(i))
 
 
-def init():
+def initation():
+    # game system
+    global window
+    window = pygame.display.set_mode((window_w, window_h))
+
+    # gene update
+    global table
+    table = set_table()
+
+    # player init
     Player.serial = 0
-    Player.record = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-
-    Enemy.init_number = 0
-    Enemy.init_loc = []
-
-    with open('setting/gene.csv', 'r', newline='') as file:
-        reader = csv.reader(file)
-
-        for row in reader:
-            table.append(row)
-        pass
-
+    Player.record = [0 * i for i in range(500)]
     Entity.player_group = pygame.sprite.Group()
-    for _ in range(10):
+
+    for _ in range(500):
         # noinspection PyTypeChecker
         Entity.player_group.add(Player())
 
+    # enemy init
+    Enemy.init_number = 0
+
     Entity.enemy_group = pygame.sprite.Group()
-    for i in range(5, 15):
+    for i in range(5, 13):
         # noinspection PyTypeChecker
         Entity.enemy_group.add(Enemy(i))
 
 
 def simulation():
-    pygame.init()
+    initation()
 
     running = True
     while running:
@@ -151,5 +163,5 @@ def simulation():
         pygame.display.update()
         clock.tick(60)
 
-    pygame.quit()
+    print(1)
     return Player.record
