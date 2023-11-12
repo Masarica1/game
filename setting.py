@@ -22,4 +22,4 @@ def gene_setting(number: int):
 
 
 location_setting()
-gene_setting(500)
+gene_setting(1)

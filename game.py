@@ -1,3 +1,5 @@
+import random
+
 import pygame
 import csv
 
@@ -29,18 +31,16 @@ pygame.time.set_timer(event_1, 5)
 
 class Player(pygame.sprite.Sprite):
     serial: int = 0
-    record: list[int] = [0 * i for i in range(500)]
+    record: list[int] = [0 * i for i in range(1)]
 
     def __init__(self):
         super().__init__()
-        self.image = pygame.Surface((100, 100))
+        self.image = pygame.image.load('image/player.png')
         self.rect = self.image.get_rect()
         self.vel = 10
         self.last_time = 0
         self.gene = []
         self.surface = pygame.image.load('image/player.png')
-
-        self.image.fill((128, 128, 128))
 
         # gene put
         self.serial_n: int = Player.serial
@@ -51,16 +51,11 @@ class Player(pygame.sprite.Sprite):
         self.rect.centerx = window_w / 2
 
     def update(self):
-        if self.gene.pop() == '1':
-            self.rect.x += self.vel
-        else:
-            self.rect.x -= self.vel
-
-        if self.out_check():
-            Player.record[self.serial_n] = self.last_time
-            # noinspection PyTypeChecker
-            Entity.player_group.remove(self)
-            print('Fail')
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_a]:
+            self.rect.x -= 10
+        if keys[pygame.K_d]:
+            self.rect.x += 10
 
     def out_check(self):
         if (self.rect.x < 0) or (self.rect.right > window_w):
@@ -80,12 +75,10 @@ class Enemy(pygame.sprite.Sprite):
 
     def __init__(self, vel: int):
         super().__init__()
-        self.image = pygame.Surface((75, 75))
+        self.image = random.choice([pygame.image.load('image/enemy1.jpg'), pygame.image.load('image/enemy2.jpg')])
         self.rect = self.image.get_rect()
         self.vel = vel
-        self.surface = pygame.image.load('image/enemy.jpg')
 
-        self.image.fill((255, 0, 0))
         self.rect.y = 0
         self.rect.x = Enemy.init_loc[Enemy.init_number]
 
@@ -100,7 +93,7 @@ class Enemy(pygame.sprite.Sprite):
 
 class Entity:
     player_group = pygame.sprite.Group()
-    for _ in range(500):
+    for _ in range(1):
         # noinspection PyTypeChecker
         player_group.add(Player())
 
@@ -121,10 +114,10 @@ def initation():
 
     # player init
     Player.serial = 0
-    Player.record = [0 * i for i in range(500)]
+    Player.record = [0 * i for i in range(1)]
     Entity.player_group = pygame.sprite.Group()
 
-    for _ in range(500):
+    for _ in range(1):
         # noinspection PyTypeChecker
         Entity.player_group.add(Player())
 
@@ -152,7 +145,8 @@ def simulation():
         if len(Entity.player_group) == 0:
             running = False
 
-        window.fill((255, 255, 255))
+        background = pygame.image.load('image/background.jpg')
+        window.blit(background, background.get_rect())
 
         Entity.player_group.update()
         Entity.player_group.draw(window)

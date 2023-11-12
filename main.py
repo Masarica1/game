@@ -45,7 +45,7 @@ def get_table() -> list[int]:
     for i in range(len(record)):
         record[i] -= int(min(record))
 
-    for _ in range(len(set(record)) - 30):
+    for _ in range(len(set(record))):
         m = 10000
         for i in record:
             if (i < m) and (i != 0):
